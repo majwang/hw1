@@ -11,36 +11,30 @@ def dijkstras_shortest_path(start, dst, graph, adj):
     dist[start] = 0
     prev[start] = None
 
-    for vertex in graph['waypoints']:
-        vertex = graph['waypoints'][vertex]
-        if vertex is not start:
-            dist[vertex] = float("+inf")
-            prev[vertex] = None
-        heappush(pq, (dist[vertex], vertex))
+    heappush(pq, (0, start))
 
-    for vertex in graph['spaces']:
-        dist[vertex] = float("+inf")
-        prev[vertex] = None
-        heappush(pq, (dist[vertex], vertex))
-
+    flag = False
     while pq:
         priority, current = heappop(pq)
         neighbors = adj(graph, current)
         for neighbor in neighbors:
             neighbor, weight = neighbor
             better_distance = priority + weight
-            if better_distance < dist[neighbor]:
+            if neighbor in dist and better_distance < dist[neighbor] or neighbor not in dist:
                 dist[neighbor] = better_distance
                 prev[neighbor] = current
-                if neighbor == dst:
-                    break
                 heappush(pq, (dist[neighbor], neighbor))
+                if neighbor == dst:
+                    flag = True
+                    break
+        if flag:
+            break
 
-    if prev[dst] is None:
+    if dst not in prev:
         return []
-    path = []
+
+    path = [dst]
     past = prev[dst]
-    path.append(dst)
     while past is not start:
         path.append(past)
         past = prev[past]
